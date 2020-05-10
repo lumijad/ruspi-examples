@@ -13,3 +13,24 @@ log = "0.4"
 pretty_env_logger = "0.4"
 dotenv = "0.15"
 futures = { version = "0.3", default-features = false, features = ["alloc"] }
+
+
+[[bin]]
+name = "hello"
+path = "src/hello/main.rs"
+
+[[bin]]
+name = "multiport"
+path = "src/multiport/main.rs"
+
+[[bin]]
+name = "routing"
+path = "src/routing/main.rs"
+
+[[bin]]
+name = "sse"
+path = "src/sse/main.rs"
+
+[[bin]]
+name = "tls"
+path = "src/tls/main.rs"
