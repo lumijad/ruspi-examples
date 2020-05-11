@@ -41,13 +41,37 @@ static INDEX_HTML: &str = r#"
     <body>
         <h1>Server side event</h1>
         <div id="sse_ctl">
-            <p>Connecting...></p>
+            <p>Press the "Start" button to begin</p>
         </div>
+        <button onclick="start()">Start</button> Press the "Start" to begin.
+        <br>
+        <button onclick="stop()">Stop</button> "Stop" to finish.
+
 
         <script type="text/javascript">
-        var uri = 'http://localhost:8080/ticks';
 
-        var sse = new EventSource(uri);
+        let eventSource;
+
+        function stop() {
+            eventSource.close();
+            console.log("eventSource.close()");
+        }
+
+        function start() {
+            var uri = 'http://localhost:8080/ticks';
+
+            eventSource = new EventSource(uri);
+
+            eventSource.onopen = function() {
+                eventSource.innerHTML = "<p><em>Connected!</em></p>";
+            }
+
+            eventSource.onmessage = function(msg) {
+                console.log(msg)
+                message(msg.data);
+            }
+        }
+
         function message(data) {
             var line = document.createElement('p');
             line.innerText = data;
@@ -55,13 +79,6 @@ static INDEX_HTML: &str = r#"
             sse_ctl.appendChild(line);
         }
 
-        sse.onopen = function() {
-            sse_ctl.innerHTML = "<p><em>Connected!</em></p>";
-        }
-
-        sse.onmessage = function(msg) {
-            message(msg.data);
-        };
         </script>
     </body>
 </html>

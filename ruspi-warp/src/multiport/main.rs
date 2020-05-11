@@ -60,7 +60,7 @@ mod tests {
         let resp = request()
             .method("GET")
             .header("user-agent", "test")
-            .path("https://127.0.0.1:8443/warp")
+            .path("https://127.0.0.1:8443/hi/warp")
             .reply(&get_routes())
             .await;
 
