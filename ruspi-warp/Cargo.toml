@@ -29,6 +29,14 @@ name = "routing"
 path = "src/routing/main.rs"
 
 [[bin]]
+name = "web_socket_upgrade"
+path = "src/web_socket_upgrade/main.rs"
+
+[[bin]]
+name = "web_socket_chat_app"
+path = "src/web_socket_chat_app/main.rs"
+
+[[bin]]
 name = "sse"
 path = "src/sse/main.rs"
 
