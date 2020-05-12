@@ -7,6 +7,7 @@ use std::sync::{
 use tokio::sync::mpsc;
 use warp::{sse::ServerSentEvent, Filter};
 
+
 #[tokio::main]
 async fn main() {
     pretty_env_logger::init();
@@ -133,7 +134,7 @@ static INDEX_HTML: &str = r#"
         <input type="text" id="text" />
         <button type="button" id="send">Send</button>
         <script type="text/javascript">
-        var uri = 'http://' + location.host + '/chat';
+        var uri = location.origin + '/chat';
         var sse = new EventSource(uri);
         function message(data) {
             var line = document.createElement('p');

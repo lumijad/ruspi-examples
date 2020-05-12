@@ -58,7 +58,7 @@ static INDEX_HTML: &str = r#"
         }
 
         function start() {
-            var uri = 'http://localhost:8080/ticks';
+            var uri = location.origin + '/ticks';
 
             eventSource = new EventSource(uri);
 
