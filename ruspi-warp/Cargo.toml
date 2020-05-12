@@ -14,7 +14,13 @@ pretty_env_logger = "0.4"
 dotenv = "0.15"
 futures = { version = "0.3", default-features = false, features = ["alloc"] }
 bytes = "0.5"
-
+serde = { version= "1", features = ["derive"] }
+serde_json = "1"
+handlebars = { version = "3.0", features = ["dir_source"] }
+rand = "0.7"
+rust-argon2 = "0.8"
+jsonwebtoken = "7.0"
+chrono = { version = "0.4", features = ["serde"] }
 
 [[bin]]
 name = "hello"
@@ -27,6 +33,14 @@ path = "src/multiport/main.rs"
 [[bin]]
 name = "routing"
 path = "src/routing/main.rs"
+
+[[bin]]
+name = "serve_static_files"
+path = "src/serve_static_files/main.rs"
+
+[[bin]]
+name = "handlebars"
+path = "src/handlebars/main.rs"
 
 [[bin]]
 name = "web_socket_upgrade"
@@ -44,7 +58,10 @@ path = "src/sse/main.rs"
 name = "sse_chat"
 path = "src/sse_chat/main.rs"
 
-
 [[bin]]
 name = "tls"
 path = "src/tls/main.rs"
+
+[[bin]]
+name = "jwt"
+path = "src/jwt/main.rs"
