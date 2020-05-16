@@ -1,0 +1,14 @@
+[package]
+name = "ruspi-native-tls"
+version = "0.1.0"
+authors = ["Rolf <rolf@scherer.ml>"]
+edition = "2018"
+
+[dependencies]
+log = "0.4"
+native-tls = "0.2"
+
+[[bin]]
+name = "ntls-server"
+path = "src/server/main.rs"
+

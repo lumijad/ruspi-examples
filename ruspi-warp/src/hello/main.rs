@@ -3,7 +3,7 @@ use warp::Filter;
 /*
 
 [dependencies]
-tokio = { version = "0.2", features = ["macros"] }
+ruspi-tokio = { version = "0.2", features = ["macros"] }
 warp = "0.2"
 
 */

@@ -1,0 +1,23 @@
+[package]
+name = "ruspi-actix"
+version = "0.1.0"
+authors = ["Rolf <rolf@scherer.ml>"]
+edition = "2018"
+
+[dependencies]
+env_logger = "0.7"
+rustls = "0.16"
+actix-web = { version = "2.0", features = ["rustls"] }
+actix-files = "0.2"
+actix-rt = "1.0"
+log = "0.4"
+
+[[bin]]
+name = "actix_hello"
+path = "src/hello/main.rs"
+
+
+[[bin]]
+name = "actix_tls"
+path = "src/tls/main.rs"
+

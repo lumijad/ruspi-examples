@@ -1,5 +1,9 @@
 [workspace]
 
 members = [
+    "ruspi-actix",
+    "ruspi-hyper",
+    "ruspi-native-tls",
+    "ruspi-tokio",
     "ruspi-warp",
 ]
