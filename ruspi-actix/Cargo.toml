@@ -16,6 +16,9 @@ log = "0.4"
 name = "actix_hello"
 path = "src/hello/main.rs"
 
+[[bin]]
+name = "actix_sni"
+path = "src/sni/main.rs"
 
 [[bin]]
 name = "actix_tls"

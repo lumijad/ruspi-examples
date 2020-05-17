@@ -1,0 +1,43 @@
+[ ruspi_test1 ]
+basicConstraints = critical,CA:false
+keyUsage = nonRepudiation, digitalSignature
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+subjectAltName = @alt_names_test1
+
+[ ruspi_test2 ]
+basicConstraints = critical,CA:false
+keyUsage = nonRepudiation, digitalSignature
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+subjectAltName = @alt_names_test2
+
+[ ruspi_test3 ]
+basicConstraints = critical,CA:false
+keyUsage = nonRepudiation, digitalSignature
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+subjectAltName = @alt_names_test3
+
+[ ruspi_client ]
+basicConstraints = critical,CA:false
+keyUsage = nonRepudiation, digitalSignature
+extendedKeyUsage = critical, clientAuth
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+
+[ ruspi_inter ]
+subjectKeyIdentifier = hash
+extendedKeyUsage = critical, serverAuth, clientAuth
+basicConstraints = CA:true
+keyUsage = cRLSign, keyCertSign, digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign
+
+[ alt_names_test1 ]
+DNS.1 = test1.ruspi.dev
+DNS.2 = localhost
+
+[ alt_names_test2 ]
+DNS.1 = test2.ruspi.dev
+
+[ alt_names_test3 ]
+DNS.1 = test3.ruspi.dev
