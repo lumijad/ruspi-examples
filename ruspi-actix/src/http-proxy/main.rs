@@ -1,0 +1,109 @@
+use std::net::ToSocketAddrs;
+
+use actix_web::client::Client;
+use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
+use clap::{value_t, Arg};
+use url::Url;
+
+async fn forward(
+    req: HttpRequest,
+    body: web::Bytes,
+    url: web::Data<Url>,
+    client: web::Data<Client>,
+) -> Result<HttpResponse, Error> {
+    let mut new_url = url.get_ref().clone();
+    new_url.set_path(req.uri().path());
+    new_url.set_query(req.uri().query());
+
+    let forwarded_req = client
+        .request_from(new_url.as_str(), req.head())
+        .no_decompress();
+    let forwarded_req = if let Some(addr) = req.head().peer_addr {
+        forwarded_req.header("x-forwarded-for", format!("{}", addr.ip())).header("forwarded", format!("for={}", addr.ip()))
+    } else {
+        forwarded_req
+    };
+
+    let mut res = forwarded_req.send_body(body).await.map_err(Error::from)?;
+
+    let mut client_resp = HttpResponse::build(res.status());
+
+    for (header_name, header_value) in
+    res.headers().iter()
+    {
+        println!("Header name: {} value:{:?}",  header_name.clone(), header_value.clone());
+    }
+
+    // Remove `Connection` as per
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Connection#Directives
+    for (header_name, header_value) in
+    res.headers().iter().filter(|(h, _)| *h != "connection")
+    {
+        client_resp.header(header_name.clone(), header_value.clone());
+    }
+
+    Ok(client_resp.body(res.body().await?))
+}
+
+#[actix_rt::main]
+async fn main() -> std::io::Result<()> {
+    let matches = clap::App::new("HTTP Proxy")
+        .arg(
+            Arg::with_name("listen_addr")
+                .takes_value(true)
+                .value_name("LISTEN ADDR")
+                .index(1)
+                .required(true),
+        )
+        .arg(
+            Arg::with_name("listen_port")
+                .takes_value(true)
+                .value_name("LISTEN PORT")
+                .index(2)
+                .required(true),
+        )
+        .arg(
+            Arg::with_name("forward_addr")
+                .takes_value(true)
+                .value_name("FWD ADDR")
+                .index(3)
+                .required(true),
+        )
+        .arg(
+            Arg::with_name("forward_port")
+                .takes_value(true)
+                .value_name("FWD PORT")
+                .index(4)
+                .required(true),
+        )
+        .get_matches();
+
+    let listen_addr = matches.value_of("listen_addr").unwrap();
+    let listen_port = value_t!(matches, "listen_port", u16).unwrap_or_else(|e| e.exit());
+
+    let forwarded_addr = matches.value_of("forward_addr").unwrap();
+    let forwarded_port =
+        value_t!(matches, "forward_port", u16).unwrap_or_else(|e| e.exit());
+
+    let forward_url = Url::parse(&format!(
+        "http://{}",
+        (forwarded_addr, forwarded_port)
+            .to_socket_addrs()
+            .unwrap()
+            .next()
+            .unwrap()
+    ))
+        .unwrap();
+
+    HttpServer::new(move || {
+        App::new()
+            .data(Client::new())
+            .data(forward_url.clone())
+            .wrap(middleware::Logger::default())
+            .default_service(web::route().to(forward))
+    })
+        .bind((listen_addr, listen_port))?
+        .system_exit()
+        .run()
+        .await
+}

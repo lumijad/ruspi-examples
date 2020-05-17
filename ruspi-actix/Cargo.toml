@@ -11,10 +11,19 @@ actix-web = { version = "2.0", features = ["rustls"] }
 actix-files = "0.2"
 actix-rt = "1.0"
 log = "0.4"
+clap = "2.32.0"
+futures = "0.3.1"
+failure = "0.1.3"
+url = "2.0"
+dotenv = "0.15"
 
 [[bin]]
 name = "actix_hello"
 path = "src/hello/main.rs"
+
+[[bin]]
+name = "actix_http_proxy"
+path = "src/http-proxy/main.rs"
 
 [[bin]]
 name = "actix_sni"
@@ -24,3 +33,6 @@ path = "src/sni/main.rs"
 name = "actix_tls"
 path = "src/tls/main.rs"
 
+[[bin]]
+name = "tlsproxy"
+path = "src/tls-proxy/main.rs"
