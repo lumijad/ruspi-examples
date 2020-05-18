@@ -1,13 +1,13 @@
 use std::env;
 use std::net::ToSocketAddrs;
 
-use actix_web::client::Client;
 use log::debug;
 use url::Url;
 
 use crate::config;
+use std::collections::HashMap;
 
-pub fn get_forward_url(domain: &config::Domain) -> Url {
+pub fn create_forward_url(domain: &config::Domain) -> Url {
     let protocol = match domain.protocol {
         Protocol::Http => "http",
         Protocol::Https => "https"
@@ -35,6 +35,7 @@ pub struct Domain {
     pub cert_chain: Option<String>,
     pub cert_key: Option<String>,
 }
+
 
 #[derive(Debug, PartialEq)]
 pub enum Protocol {
@@ -81,6 +82,27 @@ pub fn read_domain_config() -> Vec<config::Domain> {
     domains
 }
 
+
+
+
+lazy_static! {
+    pub static ref FORWARD_URLS: HashMap<String, Url> = {
+
+        let mut map: HashMap::<String, Url> = HashMap::new();
+
+        for domain in read_domain_config() {
+            map.insert(domain.name.clone(), create_forward_url(&domain));
+        }
+
+        map
+    };
+}
+
+pub fn get_forward_url(domain: &String) -> Url {
+    FORWARD_URLS.get(domain).unwrap().clone()
+}
+
+
 #[derive(Debug)]
 pub struct Proxy {
     pub proxy_protocol: Protocol,
@@ -114,3 +136,4 @@ impl Proxy {
 pub fn read_proxy_config() -> config::Proxy {
     Proxy::new()
 }
+

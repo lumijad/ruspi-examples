@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 use dotenv::dotenv;
 
 mod config;
@@ -12,8 +15,6 @@ async fn main() -> std::io::Result<()> {
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "warn,tlsproxy=info,actix_web=info");
     }
-
-
 
     server::start().await
 }

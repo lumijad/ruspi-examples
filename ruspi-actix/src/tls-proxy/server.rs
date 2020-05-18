@@ -3,15 +3,12 @@ use std::io::BufReader;
 use std::sync::Arc;
 
 use actix_web::{App, Error, HttpRequest, HttpResponse, HttpServer, middleware, web};
+use actix_web::client::Client;
 use rustls::{NoClientAuth, ResolvesServerCertUsingSNI, ServerConfig};
 use rustls::internal::pemfile::{certs, pkcs8_private_keys};
 use rustls::sign::{RSASigningKey, SigningKey};
 
 use crate::config::{Domain, Protocol, read_domain_config, read_proxy_config, get_forward_url};
-use url::Url;
-use actix_web::client::Client;
-use std::collections::HashMap;
-use crate::config;
 
 fn add_certificate_to_resolver(domain: &Domain, resolver: &mut ResolvesServerCertUsingSNI) {
     let cert_file = &mut BufReader::new(File::open(domain.cert_chain.as_ref().unwrap()).unwrap());
@@ -27,9 +24,9 @@ fn add_certificate_to_resolver(domain: &Domain, resolver: &mut ResolvesServerCer
 async fn forward(
     req: HttpRequest,
     body: web::Bytes,
-    url: web::Data<Url>,
-    client: web::Data<Client>,
 ) -> Result<HttpResponse, Error> {
+
+    let client = Client::new();
 
     let mut domain_name = String::from(req.connection_info().host());
     if domain_name.contains(":") {
@@ -37,8 +34,7 @@ async fn forward(
         domain_name = parts.next().unwrap().to_string();
     }
 
-
-    let mut new_url = url.get_ref().clone();
+    let mut new_url = get_forward_url(&domain_name);
     new_url.set_path(req.uri().path());
     new_url.set_query(req.uri().query());
 
@@ -58,7 +54,7 @@ async fn forward(
     for (header_name, header_value) in
     res.headers().iter()
     {
-        println!("Header name: {} value:{:?}",  header_name.clone(), header_value.clone());
+        println!("Header name: {} value:{:?}", header_name.clone(), header_value.clone());
     }
 
     // Remove `Connection` as per
@@ -78,27 +74,19 @@ pub async fn start() -> std::io::Result<()> {
 
     let mut resolver = ResolvesServerCertUsingSNI::new();
 
-    let mut targets: HashMap<String, Url> = HashMap::new();
-
     for domain in domain_configs {
         if domain.cert_chain.is_some() {
             add_certificate_to_resolver(&domain, &mut resolver);
         }
-
-        targets.insert(domain.name.clone(), get_forward_url(&domain));
     }
 
     let mut config = ServerConfig::new(NoClientAuth::new());
     config.cert_resolver = Arc::new(resolver);
 
     let mut server = HttpServer::new(|| {
-
-            App::new()
-                .data(Client::new())
-                //.data(targets.clone())
-                .wrap(middleware::Logger::default())
-                .default_service(web::route().to(forward))
-
+        App::new()
+            .wrap(middleware::Logger::default())
+            .default_service(web::route().to(forward))
     });
 
     let address = format!("{}:{}", proxy_config.proxy_address, proxy_config.proxy_port);
